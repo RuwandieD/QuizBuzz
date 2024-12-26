@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import CategoryCard from '../../components/ui/CategoryCard';
 
@@ -21,6 +21,7 @@ const categoryImages: { [key: string]: any } = {
 const HomeScreen = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedFilter, setSelectedFilter] = useState('All');
 
   // Fetch categories from API
   useEffect(() => {
@@ -37,6 +38,17 @@ const HomeScreen = () => {
     fetchCategories();
   }, []);
 
+  // Filter options
+  const filters = ['All', 'Entertainment', 'General', 'Music'];
+
+  // Apply filter
+  const filteredCategories =
+    selectedFilter === 'All'
+      ? categories
+      : categories.filter((item: Category) =>
+          item.name.toLowerCase().includes(selectedFilter.toLowerCase())
+        );
+
   // Render each category
   const renderCategory = ({ item }: { item: Category }) => (
     <CategoryCard
@@ -50,11 +62,33 @@ const HomeScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Learn through quizzes</Text>
+
+      {/* Filter Buttons */}
+      <View style={styles.filterContainer}>
+        {filters.map((filter) => (
+          <TouchableOpacity
+            key={filter}
+            style={[
+              styles.filterButton,
+              selectedFilter === filter && styles.activeFilter,
+            ]}
+            onPress={() => setSelectedFilter(filter)}>
+            <Text
+              style={[
+                styles.filterText,
+                selectedFilter === filter && styles.activeFilterText,
+              ]}>
+              {filter}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
       {loading ? (
         <ActivityIndicator size="large" color="#f04d1c" />
       ) : (
         <FlatList
-          data={categories}
+          data={filteredCategories}
           renderItem={renderCategory}
           keyExtractor={(item) => item.id.toString()}
         />
@@ -73,6 +107,27 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 16,
+  },
+  filterContainer: {
+    flexDirection: 'row',
+    marginBottom: 16,
+  },
+  filterButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    marginRight: 8,
+    backgroundColor: '#F0F0F0',
+  },
+  activeFilter: {
+    backgroundColor: '#333333',
+  },
+  filterText: {
+    fontSize: 14,
+    color: '#333333',
+  },
+  activeFilterText: {
+    color: '#FFFFFF',
   },
 });
 
