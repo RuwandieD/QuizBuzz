@@ -11,17 +11,18 @@ import axios from 'axios';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { RootStackParamList } from '@/types';
 
-type QuizDetailScreenRouteProp = RouteProp<RootStackParamList, 'QuizDetailScreen'>;
+// Define route type
+type QuizDetailRouteProp = RouteProp<RootStackParamList, 'QuizDetailScreen'>;
 
-const route = useRoute<QuizDetailScreenRouteProp>();
-const { categoryId, categoryName } = route.params;
+const QuizDetailScreen = () => {
+  const route = useRoute<QuizDetailRouteProp>();
+  const { categoryId, categoryName } = route.params || { categoryId: 0, categoryName: 'Unknown' };
 
-const QuizDetailScreen = ({ route, navigation }: any) => {
-  const { categoryId, categoryName } = route.params;
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('Route Params:', route.params); // Debugging log
     const fetchQuestions = async () => {
       try {
         const response = await axios.get(
