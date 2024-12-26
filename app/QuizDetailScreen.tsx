@@ -8,10 +8,12 @@ import {
   Alert,
 } from 'react-native';
 import axios from 'axios';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@/types';
 
-// Route type for navigation params
+// Navigation Types
+type NavigationProp = StackNavigationProp<RootStackParamList, 'ResultScreen'>;
 type QuizDetailRouteProp = RouteProp<RootStackParamList, 'QuizDetailScreen'>;
 
 // Question Type
@@ -22,7 +24,7 @@ type Question = {
   options: string[];
 };
 
-// HTML Decoder Function (React Native Compatible)
+// HTML Decoder Function
 const decodeHTML = (html: string): string => {
   return html
     .replace(/&quot;/g, '"')
@@ -41,11 +43,14 @@ const decodeHTML = (html: string): string => {
 
 // Main Component
 const QuizDetailScreen = () => {
-  // Route and Params
+  // Navigation and Route Hooks
+  const navigation = useNavigation<NavigationProp>();
   const route = useRoute<QuizDetailRouteProp>();
+
+  // Extract Parameters
   const { categoryId, categoryName } = route.params;
 
-  // States
+  // State Variables
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -57,7 +62,6 @@ const QuizDetailScreen = () => {
     const fetchQuestions = async () => {
       console.log('Fetching questions for Category ID:', categoryId);
 
-      // Validate Category ID
       if (!categoryId) {
         Alert.alert('Error', 'Invalid category selected!');
         setLoading(false);
@@ -89,9 +93,8 @@ const QuizDetailScreen = () => {
           ]),
         }));
 
-        console.log('Formatted Questions:', formattedQuestions);
-        setQuestions(formattedQuestions); // Update state
-        setLoading(false); // Stop loading
+        setQuestions(formattedQuestions);
+        setLoading(false);
       } catch (error) {
         console.error('Error fetching questions:', error);
         Alert.alert('Error', 'Failed to load questions. Try again later.');
@@ -111,29 +114,30 @@ const QuizDetailScreen = () => {
     const currentQuestion = questions[currentQuestionIndex];
     setSelectedAnswer(answer);
 
-    // Check if the answer is correct
     if (answer === currentQuestion.correct_answer) {
-      setScore((prevScore) => prevScore + 1); // Update score safely
+      setScore((prevScore) => prevScore + 1);
     }
 
-    // Move to next question after delay
+    // Move to next question or ResultScreen
     setTimeout(() => {
       if (currentQuestionIndex < questions.length - 1) {
         setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
         setSelectedAnswer(null);
       } else {
-        Alert.alert(
-          'Quiz Finished',
-          `Your score: ${score + (answer === currentQuestion.correct_answer ? 1 : 0)}/${questions.length}`
-        );
+        // Navigate to ResultScreen
+        navigation.navigate('ResultScreen', {
+          score: score + (answer === currentQuestion.correct_answer ? 1 : 0),
+          total: questions.length,
+        });
       }
     }, 1000);
   };
 
   // Progress Percentage
-  const progress = questions.length > 0
-    ? ((currentQuestionIndex + 1) / questions.length) * 100
-    : 0;
+  const progress =
+    questions.length > 0
+      ? ((currentQuestionIndex + 1) / questions.length) * 100
+      : 0;
 
   // Handle Loading State
   if (loading) {
@@ -157,35 +161,31 @@ const QuizDetailScreen = () => {
       </Text>
 
       {/* Question */}
-      {questions.length > 0 && (
-        <Text style={styles.questionText}>
-          {questions[currentQuestionIndex]?.question || ''}
-        </Text>
-      )}
+      <Text style={styles.questionText}>
+        {questions[currentQuestionIndex]?.question || ''}
+      </Text>
 
       {/* Options */}
-      {questions.length > 0 &&
-        questions[currentQuestionIndex]?.options?.map((option, index) => {
-          const isSelected = selectedAnswer === option;
-          const isCorrect =
-            option === questions[currentQuestionIndex].correct_answer;
-          const optionStyle = isSelected
-            ? isCorrect
-              ? styles.correctAnswer
-              : styles.wrongAnswer
-            : styles.option;
+      {questions[currentQuestionIndex]?.options.map((option, index) => {
+        const isSelected = selectedAnswer === option;
+        const isCorrect =
+          option === questions[currentQuestionIndex].correct_answer;
+        const optionStyle = isSelected
+          ? isCorrect
+            ? styles.correctAnswer
+            : styles.wrongAnswer
+          : styles.option;
 
-          return (
-            <TouchableOpacity
-              key={index}
-              style={optionStyle}
-              onPress={() => handleAnswerSelect(option)}
-              disabled={!!selectedAnswer}
-            >
-              <Text style={styles.optionText}>{option}</Text>
-            </TouchableOpacity>
-          );
-        })}
+        return (
+          <TouchableOpacity
+            key={index}
+            style={optionStyle}
+            onPress={() => handleAnswerSelect(option)}
+            disabled={!!selectedAnswer}>
+            <Text style={styles.optionText}>{option}</Text>
+          </TouchableOpacity>
+        );
+      })}
     </View>
   );
 };

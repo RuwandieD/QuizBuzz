@@ -1,15 +1,16 @@
-import { NavigatorScreenParams } from '@react-navigation/native';
-
 export type RootStackParamList = {
-  LoginScreen: undefined; 
-  RegisterScreen: undefined; 
+  tabs: undefined;
+  LoginScreen: undefined;
+  RegisterScreen: undefined;
   QuizDetailScreen: {
     categoryId: number;
     categoryName: string;
   };
   HomeScreen: {
-    username: string; 
+    username: string;
   };
+  ResultScreen: { 
+    score: number; 
+    total: number; 
+  }; 
 };
-
-export type RootStackNavigation = NavigatorScreenParams<RootStackParamList>;

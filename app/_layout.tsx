@@ -1,13 +1,12 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import 'react-native-reanimated';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
+// Prevent splash screen auto-hide until fonts load
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -17,24 +16,23 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
+    if (loaded) SplashScreen.hideAsync();
   }, [loaded]);
 
-  if (!loaded) {
-    return null;
-  }
+  if (!loaded) return null;
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
-      <Stack.Screen name="LoginScreen" options={{ title: 'Login' }} />
-      <Stack.Screen name="RegisterScreen" options={{ title: 'Register' }} />      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="QuizDetailScreen" options={{ title: 'Quiz Details' }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
+        {/* Tabs */}
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
 
+        {/* Stack Screens */}
+        <Stack.Screen name="LoginScreen" options={{ title: 'Login' }} />
+        <Stack.Screen name="RegisterScreen" options={{ title: 'Register' }} />
+        <Stack.Screen name="QuizDetailScreen" options={{ title: 'Quiz Details' }} />
+        <Stack.Screen name="ResultScreen" options={{ title: 'Results' }} />
+      </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>
   );
