@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  ActivityIndicator,
+  StyleSheet,
+  TouchableOpacity,
+  Button,
+} from 'react-native';
 import axios from 'axios';
 import CategoryCard from '../../components/ui/CategoryCard';
 import { useNavigation } from '@react-navigation/native';
-import { RootStackParamList } from   '../../types';
+import { RootStackParamList } from '../../types';
 import { StackNavigationProp } from '@react-navigation/stack';
-
 
 // Define Category type
 type Category = {
@@ -25,12 +32,13 @@ const categoryImages: { [key: string]: any } = {
 // Navigation type
 type NavigationProp = StackNavigationProp<RootStackParamList, 'QuizDetailScreen'>;
 
-const HomeScreen = () => {
+const HomeScreen = ({ route }: any) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFilter, setSelectedFilter] = useState('All');
 
-  const navigation = useNavigation<NavigationProp>(); 
+  const navigation = useNavigation<NavigationProp>();
+  const username = route?.params?.username || 'Guest';
 
   // Fetch categories from API
   useEffect(() => {
@@ -55,34 +63,36 @@ const HomeScreen = () => {
     selectedFilter === 'All'
       ? categories
       : categories.filter((item: Category) =>
-          item.name.toLowerCase().includes(selectedFilter.toLowerCase())
-        );
+        item.name.toLowerCase().includes(selectedFilter.toLowerCase())
+      );
 
- // Render each category
-const renderCategory = ({ item }: { item: Category }) => (
-  <CategoryCard
-    id={item.id}
-    name={item.name}
-    imageSource={categoryImages[item.name] || categoryImages.default}
-    onPress={() => {
-      // Debugging log to verify parameters being passed
-      console.log('Navigating to QuizDetailScreen with params:', {
-        categoryId: item.id,
-        categoryName: item.name,
-      });
-
-      // Navigate to QuizDetailScreen with parameters
-      navigation.navigate('QuizDetailScreen', {
-        categoryId: item.id,
-        categoryName: item.name,
-      });
-    }}
-  />
-);
+  // Render each category
+  const renderCategory = ({ item }: { item: Category }) => (
+    <CategoryCard
+      id={item.id}
+      name={item.name}
+      imageSource={categoryImages[item.name] || categoryImages.default}
+      onPress={() =>
+        navigation.navigate('QuizDetailScreen', {
+          categoryId: item.id,
+          categoryName: item.name,
+        })
+      }
+    />
+  );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Learn through quizzes</Text>
+      {/* Header with Buttons */}
+      <View style={styles.headerContainer}>
+        <Text style={styles.header}>Learn through quizzes</Text>
+        <View style={styles.buttonContainer}>
+        <Button title="Login" onPress={() => navigation.navigate('LoginScreen')} />
+<Button title="Register" onPress={() => navigation.navigate('RegisterScreen')} />
+        </View>
+      </View>
+
+      <Text style={styles.welcome}>Welcome, {username}!</Text>
 
       {/* Filter Buttons */}
       <View style={styles.filterContainer}>
@@ -118,16 +128,31 @@ const renderCategory = ({ item }: { item: Category }) => (
   );
 };
 
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
     backgroundColor: '#FFFFFF',
   },
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
   header: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 16,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  welcome: {
+    fontSize: 16,
+    marginBottom: 10,
+    fontStyle: 'italic',
   },
   filterContainer: {
     flexDirection: 'row',
