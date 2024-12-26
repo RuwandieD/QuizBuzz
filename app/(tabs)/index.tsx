@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import CategoryCard from '../../components/ui/CategoryCard';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { RootStackParamList } from   '../../types';
+import { StackNavigationProp } from '@react-navigation/stack';
+
 
 // Define Category type
 type Category = {
@@ -49,13 +53,20 @@ const HomeScreen = () => {
           item.name.toLowerCase().includes(selectedFilter.toLowerCase())
         );
 
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
   // Render each category
   const renderCategory = ({ item }: { item: Category }) => (
     <CategoryCard
       id={item.id}
       name={item.name}
       imageSource={categoryImages[item.name] || categoryImages.default}
-      onPress={() => console.log(`Selected: ${item.name}`)}
+      onPress={() =>
+        navigation.navigate('QuizDetailScreen', {
+          categoryId: item.id,
+          categoryName: item.name,
+        })
+      } 
     />
   );
 
