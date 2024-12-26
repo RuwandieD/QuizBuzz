@@ -1,86 +1,249 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
-  FlatList,
+  TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
-  TouchableOpacity,
+  Alert,
 } from 'react-native';
 import axios from 'axios';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { RootStackParamList } from '@/types';
 
-// Define route type
+// Route type for navigation params
 type QuizDetailRouteProp = RouteProp<RootStackParamList, 'QuizDetailScreen'>;
 
+// Question Type
+type Question = {
+  question: string;
+  correct_answer: string;
+  incorrect_answers: string[];
+  options: string[];
+};
+
+// HTML Decoder Function (React Native Compatible)
+const decodeHTML = (html: string): string => {
+  return html
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&eacute;/g, 'é')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&uuml;/g, 'ü')
+    .replace(/&iacute;/g, 'í')
+    .replace(/&aacute;/g, 'á')
+    .replace(/&oacute;/g, 'ó')
+    .replace(/&eacute;/g, 'é');
+};
+
+// Main Component
 const QuizDetailScreen = () => {
+  // Route and Params
   const route = useRoute<QuizDetailRouteProp>();
-  const { categoryId, categoryName } = route.params || { categoryId: 0, categoryName: 'Unknown' };
+  const { categoryId, categoryName } = route.params;
 
-  const [questions, setQuestions] = useState([]);
+  // States
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [score, setScore] = useState(0);
 
+  // Fetch Questions
   useEffect(() => {
-    console.log('Route Params:', route.params); // Debugging log
     const fetchQuestions = async () => {
+      console.log('Fetching questions for Category ID:', categoryId);
+
+      // Validate Category ID
+      if (!categoryId) {
+        Alert.alert('Error', 'Invalid category selected!');
+        setLoading(false);
+        return;
+      }
+
       try {
         const response = await axios.get(
           `https://opentdb.com/api.php?amount=10&category=${categoryId}&type=multiple`
         );
-        setQuestions(response.data.results);
-        setLoading(false);
+
+        console.log('Raw API Response:', response.data);
+
+        if (!response.data.results || response.data.results.length === 0) {
+          throw new Error('No questions available.');
+        }
+
+        // Format Questions
+        const formattedQuestions = response.data.results.map((q: any) => ({
+          ...q,
+          question: decodeHTML(q.question),
+          correct_answer: decodeHTML(q.correct_answer),
+          incorrect_answers: q.incorrect_answers.map((ans: string) =>
+            decodeHTML(ans)
+          ),
+          options: shuffleOptions([
+            decodeHTML(q.correct_answer),
+            ...q.incorrect_answers.map((ans: string) => decodeHTML(ans)),
+          ]),
+        }));
+
+        console.log('Formatted Questions:', formattedQuestions);
+        setQuestions(formattedQuestions); // Update state
+        setLoading(false); // Stop loading
       } catch (error) {
         console.error('Error fetching questions:', error);
+        Alert.alert('Error', 'Failed to load questions. Try again later.');
         setLoading(false);
       }
     };
+
     fetchQuestions();
   }, [categoryId]);
 
-  const renderQuestion = ({ item }: any) => (
-    <TouchableOpacity style={styles.questionCard}>
-      <Text style={styles.questionText}>{item.question}</Text>
-    </TouchableOpacity>
-  );
+  // Shuffle Options
+  const shuffleOptions = (options: string[]) =>
+    options.sort(() => Math.random() - 0.5);
+
+  // Handle Answer Selection
+  const handleAnswerSelect = (answer: string) => {
+    const currentQuestion = questions[currentQuestionIndex];
+    setSelectedAnswer(answer);
+
+    // Check if the answer is correct
+    if (answer === currentQuestion.correct_answer) {
+      setScore((prevScore) => prevScore + 1); // Update score safely
+    }
+
+    // Move to next question after delay
+    setTimeout(() => {
+      if (currentQuestionIndex < questions.length - 1) {
+        setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
+        setSelectedAnswer(null);
+      } else {
+        Alert.alert(
+          'Quiz Finished',
+          `Your score: ${score + (answer === currentQuestion.correct_answer ? 1 : 0)}/${questions.length}`
+        );
+      }
+    }, 1000);
+  };
+
+  // Progress Percentage
+  const progress = questions.length > 0
+    ? ((currentQuestionIndex + 1) / questions.length) * 100
+    : 0;
+
+  // Handle Loading State
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#f04d1c" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>{categoryName} Quiz</Text>
-      {loading ? (
-        <ActivityIndicator size="large" color="#f04d1c" />
-      ) : (
-        <FlatList
-          data={questions}
-          renderItem={renderQuestion}
-          keyExtractor={(item, index) => index.toString()}
-        />
+      {/* Progress Bar */}
+      <View style={styles.progressBarContainer}>
+        <View style={[styles.progressBar, { width: `${progress}%` }]} />
+      </View>
+
+      {/* Question Number */}
+      <Text style={styles.progressText}>
+        {currentQuestionIndex + 1}/{questions.length}
+      </Text>
+
+      {/* Question */}
+      {questions.length > 0 && (
+        <Text style={styles.questionText}>
+          {questions[currentQuestionIndex]?.question || ''}
+        </Text>
       )}
+
+      {/* Options */}
+      {questions.length > 0 &&
+        questions[currentQuestionIndex]?.options?.map((option, index) => {
+          const isSelected = selectedAnswer === option;
+          const isCorrect =
+            option === questions[currentQuestionIndex].correct_answer;
+          const optionStyle = isSelected
+            ? isCorrect
+              ? styles.correctAnswer
+              : styles.wrongAnswer
+            : styles.option;
+
+          return (
+            <TouchableOpacity
+              key={index}
+              style={optionStyle}
+              onPress={() => handleAnswerSelect(option)}
+              disabled={!!selectedAnswer}
+            >
+              <Text style={styles.optionText}>{option}</Text>
+            </TouchableOpacity>
+          );
+        })}
     </View>
   );
 };
 
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    backgroundColor: '#FFFFFF',
+    padding: 20,
+    backgroundColor: '#1E1E2F',
   },
-  header: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16,
+  progressBarContainer: {
+    height: 10,
+    width: '100%',
+    backgroundColor: '#444',
+    borderRadius: 5,
+    marginVertical: 10,
   },
-  questionCard: {
-    backgroundColor: '#F9F9F9',
-    padding: 16,
-    marginBottom: 12,
-    borderRadius: 10,
-    elevation: 2,
+  progressBar: {
+    height: '100%',
+    backgroundColor: '#f04d1c',
+    borderRadius: 5,
+  },
+  progressText: {
+    color: '#fff',
+    fontSize: 16,
+    textAlign: 'center',
+    marginVertical: 5,
   },
   questionText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginVertical: 20,
+    textAlign: 'center',
+  },
+  option: {
+    padding: 15,
+    marginVertical: 10,
+    borderRadius: 10,
+    backgroundColor: '#333',
+  },
+  optionText: {
+    color: '#fff',
     fontSize: 16,
-    fontWeight: '500',
+    textAlign: 'center',
+  },
+  correctAnswer: {
+    backgroundColor: '#4CAF50',
+    padding: 15,
+    marginVertical: 10,
+    borderRadius: 10,
+  },
+  wrongAnswer: {
+    backgroundColor: '#F44336',
+    padding: 15,
+    marginVertical: 10,
+    borderRadius: 10,
   },
 });
 
