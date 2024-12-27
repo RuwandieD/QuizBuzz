@@ -40,7 +40,6 @@ const categoryImages: { [key: string]: any } = {
 // Navigation type
 type NavigationProp = StackNavigationProp<RootStackParamList, 'QuizDetailScreen'>;
 
-
 const HomeScreen = ({ route }: any) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,15 +64,16 @@ const HomeScreen = ({ route }: any) => {
   }, []);
 
   // Filter options
-  const filters = ['All', 'General', 'Science', 'Mathematics', 'Music', 'Books', 'Film','Entertainment','Video Games'];
+  const filters = ['All', 'General', 'Science', 'Mathematics', 'Music', 'Books', 'Film', 'Entertainment', 'Video Games'];
 
   // Apply filter
   const filteredCategories =
     selectedFilter === 'All'
-      ? categories
-      : categories.filter((item: Category) =>
+      ? categories || [] // Default to empty array if undefined
+      : (categories || []).filter((item: Category) =>
         item.name.toLowerCase().includes(selectedFilter.toLowerCase())
       );
+
 
   const renderCategory = ({ item }: { item: Category }) => (
     <CategoryCard
@@ -81,13 +81,13 @@ const HomeScreen = ({ route }: any) => {
       name={item.name}
       imageSource={categoryImages[item.name] || categoryImages['default']}
       statusTag={item.id % 2 === 0 ? 'Popular' : 'New'}
-      onPress={() =>
-        
+      onPress={() => {
+        setClickCount((prev) => prev + 1); // Increment click count
         navigation.navigate('QuizDetailScreen', {
           categoryId: item.id,
           categoryName: item.name,
-        })
-      }
+        });
+      }}
     />
   );
 
@@ -151,17 +151,25 @@ const HomeScreen = ({ route }: any) => {
         <ActivityIndicator size="large" color="#f04d1c" />
       ) : (
         <FlatList
-  key={`columns-2`} // Keeps rendering consistent
-  data={filteredCategories}
-  renderItem={renderCategory}
-  keyExtractor={(item) => item.id.toString()}
-  numColumns={2} // Fixed 2 columns for mobile
-  columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 12 }}
-/>
+          key={`columns-2`} // Keeps rendering consistent
+          data={filteredCategories}
+          renderItem={renderCategory}
+          keyExtractor={(item) => item.id.toString()}
+          numColumns={2} // Fixed 2 columns for mobile
+          columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 12 }}
+        />
 
 
       )}
+      {/* Floating Button */}
+      <TouchableOpacity
+        style={styles.floatingButton}
+        onPress={() => console.log('Floating button clicked')}>
+        <Text style={styles.floatingButtonText}>{`${clickCount}`}</Text>
+      </TouchableOpacity>
+
     </View>
+
   );
 };
 
@@ -173,6 +181,27 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     backgroundColor: '#FFFFFF',
     paddingTop: 40,
+  },
+  floatingButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#6200EE', // Purple button
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  floatingButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 
 
