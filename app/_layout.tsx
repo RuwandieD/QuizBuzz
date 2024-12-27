@@ -29,8 +29,8 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="LoginScreen" options={{ title: 'Login' }} />
           <Stack.Screen name="RegisterScreen" options={{ title: 'Register' }} />
-          <Stack.Screen name="QuizDetailScreen" options={{ title: 'Quiz Details' }} />
-          <Stack.Screen name="ResultScreen" options={{ title: 'Results' }} />
+          <Stack.Screen name="QuizDetailScreen" options={{ headerShown: false }} />
+          <Stack.Screen name="ResultScreen" options={{ headerShown: false }} />
         </Stack>
         <StatusBar style="auto" />
       </ThemeProvider>

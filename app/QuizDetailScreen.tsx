@@ -57,8 +57,12 @@ const QuizDetailScreen = () => {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [score, setScore] = useState(0);
 
-  // Fetch Questions
   useEffect(() => {
+    // Set dynamic header title based on categoryName
+    navigation.setOptions({
+      title: categoryName || 'Quiz Topic', // Default title if categoryName is missing
+    });
+
     const fetchQuestions = async () => {
       console.log('Fetching questions for Category ID:', categoryId);
 
@@ -69,12 +73,14 @@ const QuizDetailScreen = () => {
       }
 
       try {
+        // Fetch questions from API
         const response = await axios.get(
           `https://opentdb.com/api.php?amount=10&category=${categoryId}&type=multiple`
         );
 
         console.log('Raw API Response:', response.data);
 
+        // Check if questions exist in the response
         if (!response.data.results || response.data.results.length === 0) {
           throw new Error('No questions available.');
         }
@@ -93,17 +99,19 @@ const QuizDetailScreen = () => {
           ]),
         }));
 
+        // Update state with formatted questions
         setQuestions(formattedQuestions);
         setLoading(false);
-      } catch (error) {
-        console.error('Error fetching questions:', error);
+      } catch (error: any) {
+        console.error('Error fetching questions:', error.message || error);
         Alert.alert('Error', 'Failed to load questions. Try again later.');
         setLoading(false);
       }
     };
 
     fetchQuestions();
-  }, [categoryId]);
+  }, [categoryId, categoryName, navigation]); // Dependencies include categoryId, categoryName, and navigation
+
 
   // Shuffle Options
   const shuffleOptions = (options: string[]) =>
