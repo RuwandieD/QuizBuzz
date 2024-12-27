@@ -33,9 +33,12 @@ const categoryImages: { [key: string]: any } = {
   'Entertainment: Books': require('../assets/images/books.jpeg'),
   'Entertainment: Film': require('../assets/images/film.jpg'),
   'Entertainment: Music': require('../assets/images/music.jpg'),
-  'Science & Nature': require('../assets/images/animals.jpg'), // Replacing with animals.jpg
-  'Entertainment: Video Games': require('../assets/images/computer.jpg'), // Replacing with computer.jpg
-  'Mathematics': require('../assets/images/maths.jpg'), // Adding a new category for Mathematics
+  'Science & Nature': require('../assets/images/animals.jpg'),
+  'Entertainment: Musicals & Theatres': require('../assets/images/musical.jpg'),
+  'Entertainment: Television': require('../assets/images/television.jpg'),
+  'Science: Computers': require('../assets/images/computer.jpg'),
+
+  'Mathematics': require('../assets/images/maths.jpg'),
   default: require('../assets/images/homeDefault.png'),
 };
 
@@ -96,7 +99,7 @@ const HomeScreen = () => { // ✅ No route prop here
 
     return unsubscribe; // Cleanup listener
   }, [navigation]);
-  
+
   // Filter options
   const filters = ['All', 'General', 'Science', 'Mathematics', 'Music', 'Books', 'Film', 'Entertainment', 'Video Games'];
 
