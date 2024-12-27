@@ -45,12 +45,8 @@ const HomeScreen = ({ route }: any) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFilter, setSelectedFilter] = useState('All');
-
   const { user, logout } = useAuth(); // Access user and logout function
-
-
   const navigation = useNavigation<NavigationProp>();
-  const username = route?.params?.username || 'Guest';
 
   // Fetch categories from API
   useEffect(() => {
@@ -98,39 +94,35 @@ const HomeScreen = ({ route }: any) => {
 
   return (
     <View style={styles.container}>
-      {/* Header with Buttons */}
-      <View style={styles.headerContainer}>
-        <Text style={styles.header}>Learn through quizzes</Text>
-        <View style={styles.buttonContainer}>
-          {/* Login Button */}
-          <TouchableOpacity style={styles.loginButton} onPress={() => navigation.navigate('LoginScreen')}>
-            <Text style={styles.buttonText}>LOGIN</Text>
-          </TouchableOpacity>
+      {/* Header Bar */}
+      <View style={styles.headerBar}>
+        {/* Welcome Text */}
+        <Text style={styles.welcomeText}>Welcome, {user || 'Guest'}!</Text>
 
-          {/* Register Button */}
-          <TouchableOpacity style={styles.registerButton} onPress={() => navigation.navigate('RegisterScreen')}>
-            <Text style={styles.buttonText}>REGISTER</Text>
-          </TouchableOpacity>
-
-          {/* Logout Icon Button */}
-          <TouchableOpacity
-            style={styles.logoutButton}
-            onPress={() => {
-              logout(); // Clear user session
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'LoginScreen' }], // Reset to LoginScreen
-              });
-            }}
-          >
-            <MaterialIcons name="logout" size={24} color="black" />
-          </TouchableOpacity>
+        {/* Right Buttons */}
+        <View style={styles.authButtons}>
+          {user ? (
+            // Logout Icon
+            <TouchableOpacity
+              style={styles.logoutButton}
+              onPress={() => {
+                logout();
+                navigation.navigate('LoginScreen');
+              }}
+            >
+              <MaterialIcons name="logout" size={24} color="white" />
+            </TouchableOpacity>
+          ) : (
+            // Login/Signup Button
+            <TouchableOpacity
+              style={styles.authButton}
+              onPress={() => navigation.navigate('RegisterScreen')}
+            >
+              <Text style={styles.authText}>Login/Signup</Text>
+            </TouchableOpacity>
+          )}
         </View>
-
       </View>
-
-      {/* Dynamic Welcome Message */}
-      <Text style={styles.welcome}>Welcome, {user || 'Guest'}!</Text> {/* Replace Guest with user */}
 
       {/* Filter Buttons */}
       <View style={styles.filterContainer}>
@@ -174,21 +166,43 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: '#FFFFFF',
   },
-  headerContainer: {
+  headerBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    padding: 16,
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  header: {
-    fontSize: 24,
+  welcomeText: {
+    color: '#333333',
+    fontSize: 16,
     fontWeight: 'bold',
   },
-
-  welcome: {
-    fontSize: 16,
-    marginBottom: 10,
-    fontStyle: 'italic',
+  authButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  authButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    backgroundColor: '#6200EE', // Purple button
+  },
+  authText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  logoutButton: {
+    padding: 8,
+    backgroundColor: '#F44336', // Red logout button
+    borderRadius: 20,
+    marginLeft: 10,
   },
   filterContainer: {
     flexDirection: 'row',
@@ -216,46 +230,15 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     borderRadius: 10,
     backgroundColor: '#F0F0F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
   },
   cardText: {
     fontSize: 16,
   },
-  buttonContainer: {
-    flexDirection: 'row', // Ensure buttons are in a row
-    alignItems: 'center', // Align vertically
-    gap: 8, // Add spacing between buttons
-  },
-
-  loginButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    backgroundColor: '#007BFF', // Blue color
-    borderRadius: 8,
-  },
-
-  registerButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    backgroundColor: '#007BFF',
-    borderRadius: 8,
-  },
-
-  logoutButton: {
-    marginLeft: 8, // Add space from buttons
-    padding: 8,
-    borderRadius: 50, // Circular button
-    backgroundColor: '#F0F0F0', // Light gray background
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-
-
 });
 
 export default HomeScreen;
