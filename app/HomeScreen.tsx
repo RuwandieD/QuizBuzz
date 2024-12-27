@@ -16,6 +16,9 @@ import { useAuth } from './context/AuthContext';
 import { MaterialIcons } from '@expo/vector-icons'; // Use icons from Expo
 import CategoryCard from '../components/ui/CategoryCard';
 import { Dimensions } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Alert } from 'react-native';
+import { RouteProp, useRoute } from '@react-navigation/native';
 
 
 // Define Category type
@@ -36,33 +39,64 @@ const categoryImages: { [key: string]: any } = {
   default: require('../assets/images/homeDefault.png'),
 };
 
-
 // Navigation type
 type NavigationProp = StackNavigationProp<RootStackParamList, 'QuizDetailScreen'>;
 
-const HomeScreen = ({ route }: any) => {
+const HomeScreen = () => { // ✅ No route prop here
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFilter, setSelectedFilter] = useState('All');
   const { user, logout } = useAuth(); // Access user and logout function
   const navigation = useNavigation<NavigationProp>();
   const [clickCount, setClickCount] = useState(0); // Tracks clicks
+  const [completedQuizzes, setCompletedQuizzes] = useState<Set<number>>(new Set()); // Track completed quizzes
 
-  // Fetch categories from API
+  const route = useRoute<RouteProp<RootStackParamList, 'HomeScreen'>>();
+  const { username = 'Guest', categoryId = null } = route.params || {}; // ✅ Safe access
+  console.log('Route Params:', username, categoryId); // ✅ Debugging output
+
+
+  // Fetch categories and completed quizzes from API and AsyncStorage
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const response = await axios.get('https://opentdb.com/api_category.php');
-        setCategories(response.data.trivia_categories);
-        setLoading(false);
+        if (response.data && response.data.trivia_categories) {
+          setCategories(response.data.trivia_categories);
+        } else {
+          console.warn('No categories found in API response.');
+          setCategories([]); // Set empty if no data
+        }
       } catch (error) {
         console.error('Error fetching categories:', error);
-        setLoading(false);
+        Alert.alert('Error', 'Failed to load categories. Please try again.');
+      } finally {
+        setLoading(false); // Stop loading in all cases
       }
     };
-    fetchCategories();
-  }, []);
 
+    const loadCompletedQuizzes = async () => {
+      try {
+        const savedQuizzes = await AsyncStorage.getItem('completedQuizzes');
+        if (savedQuizzes) {
+          setCompletedQuizzes(new Set(JSON.parse(savedQuizzes)));
+        }
+      } catch (error) {
+        console.error('Error loading completed quizzes:', error);
+        Alert.alert('Error', 'Failed to load completed quizzes.');
+      }
+    };
+
+    // Fetch categories and load completed quizzes
+    fetchCategories();
+    loadCompletedQuizzes();
+
+    // Focus listener to reload data when navigating back
+    const unsubscribe = navigation.addListener('focus', loadCompletedQuizzes);
+
+    return unsubscribe; // Cleanup listener
+  }, [navigation]);
+  
   // Filter options
   const filters = ['All', 'General', 'Science', 'Mathematics', 'Music', 'Books', 'Film', 'Entertainment', 'Video Games'];
 
@@ -82,7 +116,6 @@ const HomeScreen = ({ route }: any) => {
       imageSource={categoryImages[item.name] || categoryImages['default']}
       statusTag={item.id % 2 === 0 ? 'Popular' : 'New'}
       onPress={() => {
-        setClickCount((prev) => prev + 1); // Increment click count
         navigation.navigate('QuizDetailScreen', {
           categoryId: item.id,
           categoryName: item.name,
@@ -162,11 +195,13 @@ const HomeScreen = ({ route }: any) => {
 
       )}
       {/* Floating Button */}
-      <TouchableOpacity
-        style={styles.floatingButton}
-        onPress={() => console.log('Floating button clicked')}>
-        <Text style={styles.floatingButtonText}>{`${clickCount}`}</Text>
+      <TouchableOpacity style={styles.floatingButton}>
+        <Text style={styles.floatingButtonText}>
+          {completedQuizzes.size}/{filteredCategories.length} Quizzes Completed
+        </Text>
       </TouchableOpacity>
+
+
 
     </View>
 
@@ -186,7 +221,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 20,
     right: 20,
-    width: 60,
+    width: 150,
     height: 60,
     borderRadius: 30,
     backgroundColor: '#6200EE', // Purple button
@@ -200,10 +235,10 @@ const styles = StyleSheet.create({
   },
   floatingButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
+    textAlign: 'center',
   },
-
 
   headerBar: {
     flexDirection: 'row',

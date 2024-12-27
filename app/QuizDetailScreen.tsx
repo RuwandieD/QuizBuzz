@@ -128,7 +128,9 @@ const QuizDetailScreen = () => {
         navigation.navigate('ResultScreen', {
           score: score + (answer === currentQuestion.correct_answer ? 1 : 0),
           total: questions.length,
+          categoryId, // Include categoryId here
         });
+
       }
     }, 1000);
   };
