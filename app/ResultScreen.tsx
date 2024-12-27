@@ -49,20 +49,20 @@ const ResultScreen = () => {
           const updatedQuizzes = completedQuizzes
             ? new Set(JSON.parse(completedQuizzes))
             : new Set();
-        
-          updatedQuizzes.add(categoryId); // Add current category ID
+
+          updatedQuizzes.add(route.params.categoryId); // Add current category ID
           await AsyncStorage.setItem(
             'completedQuizzes',
             JSON.stringify([...updatedQuizzes]) // Save updated set
           );
-        
+
           // Navigate to HomeScreen and pass categoryId
           navigation.navigate('HomeScreen', {
             username: 'Guest',
             categoryId: categoryId, // Pass categoryId to trigger updates
           });
         }}
-        
+
       />
 
 

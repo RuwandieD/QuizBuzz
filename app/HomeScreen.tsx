@@ -112,20 +112,45 @@ const HomeScreen = () => { // ✅ No route prop here
       );
 
 
-  const renderCategory = ({ item }: { item: Category }) => (
-    <CategoryCard
-      id={item.id}
-      name={item.name}
-      imageSource={categoryImages[item.name] || categoryImages['default']}
-      statusTag={item.id % 2 === 0 ? 'Popular' : 'New'}
-      onPress={() => {
-        navigation.navigate('QuizDetailScreen', {
-          categoryId: item.id,
-          categoryName: item.name,
-        });
-      }}
-    />
-  );
+  const renderCategory = ({ item }: { item: Category }) => {
+    const isCompleted = completedQuizzes.has(item.id); // Check if quiz is completed
+
+    // Define dynamic styles for completed quizzes
+    const categoryStyle = {
+      backgroundColor: isCompleted ? '#A5D6A7' : '#FFFFFF', // Green if completed
+      opacity: isCompleted ? 0.6 : 1, // Dim completed quizzes
+    };
+
+    const statusTagStyle = {
+      backgroundColor: isCompleted ? '#00ee63' : '#2196F3', // Green for completed, Blue for others
+      paddingVertical: 4,
+      paddingHorizontal: 8,
+      borderRadius: 12,
+      color: '#FFFFFF', // White text
+      fontWeight: 'bold',
+      fontSize: 12,
+      textAlign: 'center',
+    };
+
+    
+    return (
+      <CategoryCard
+        id={item.id}
+        name={item.name}
+        imageSource={categoryImages[item.name] || categoryImages['default']}
+        statusTag={isCompleted ? 'Completed' : item.id % 2 === 0 ? 'Popular' : 'New'}
+        onPress={() => {
+          navigation.navigate('QuizDetailScreen', {
+            categoryId: item.id,
+            categoryName: item.name,
+          });
+        }}
+
+      />
+    );
+  };
+
+
 
 
 
@@ -182,21 +207,6 @@ const HomeScreen = () => { // ✅ No route prop here
         ))}
       </View>
 
-      {/* Category List */}
-      {loading ? (
-        <ActivityIndicator size="large" color="#f04d1c" />
-      ) : (
-        <FlatList
-          key={`columns-2`} // Keeps rendering consistent
-          data={filteredCategories}
-          renderItem={renderCategory}
-          keyExtractor={(item) => item.id.toString()}
-          numColumns={2} // Fixed 2 columns for mobile
-          columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 12 }}
-        />
-
-
-      )}
       {/* Floating Button */}
       <TouchableOpacity style={styles.floatingButton}>
         <Text style={styles.floatingButtonText}>
@@ -204,8 +214,43 @@ const HomeScreen = () => { // ✅ No route prop here
         </Text>
       </TouchableOpacity>
 
+      {/* Category List */}
+      {loading ? (
+        <ActivityIndicator size="large" color="#f04d1c" />
+      ) : (
+        <FlatList
+          key={`columns-2`}
+          data={filteredCategories}
+          renderItem={({ item }) => {
+            const isCompleted = completedQuizzes.has(item.id);
 
+            const categoryStyle = {
+              borderWidth: isCompleted ? 2 : 0, // Add a 2px border only if completed
+              borderColor: isCompleted ? '#00ee63' : 'transparent', // Green border for completed
+              borderRadius: 10,
+              margin: 5,
+            };
 
+            return (
+              <View style={categoryStyle}>
+                <CategoryCard
+                  id={item.id}
+                  name={item.name}
+                  imageSource={categoryImages[item.name] || categoryImages['default']}
+                  statusTag={isCompleted ? 'Completed' : item.id % 2 === 0 ? 'Popular' : 'New'}
+                  onPress={() => {
+                    navigation.navigate('QuizDetailScreen', {
+                      categoryId: item.id,
+                      categoryName: item.name,
+                    });
+                  }}
+                />
+              </View>
+            );
+          }}
+          numColumns={2}
+        />
+      )}
     </View>
 
   );
