@@ -30,8 +30,8 @@ const ResultScreen = () => {
         {score / total >= 0.7
           ? 'Great job! 🎉'
           : score / total >= 0.4
-          ? 'Good effort! 👍'
-          : 'Keep practicing! 💪'}
+            ? 'Good effort! 👍'
+            : 'Keep practicing! 💪'}
       </Text>
 
       {/* Button to go back to Home */}
@@ -39,6 +39,7 @@ const ResultScreen = () => {
         title="Back to Home"
         onPress={() => navigation.navigate('HomeScreen', { username: 'Guest' })}
       />
+
     </View>
   );
 };

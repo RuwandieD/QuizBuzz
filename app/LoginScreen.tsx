@@ -30,7 +30,8 @@ const LoginScreen = () => {
 
     if (username === 'admin' && password === '1234') {
       // Navigate to HomeScreen with username
-      navigation.navigate('HomeScreen', { username });
+      navigation.navigate('HomeScreen', { username: 'admin' });
+
     } else {
       Alert.alert('Error', 'Invalid credentials!');
     }
