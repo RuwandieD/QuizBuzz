@@ -122,7 +122,7 @@ const HomeScreen = () => { // ✅ No route prop here
     };
 
     const statusTagStyle = {
-      backgroundColor: isCompleted ? '#00ee63' : '#2196F3', // Green for completed, Blue for others
+      backgroundColor: isCompleted ? '#00ee63' : '#0014EE', // Green for completed, Blue for others
       paddingVertical: 4,
       paddingHorizontal: 8,
       borderRadius: 12,
@@ -207,13 +207,7 @@ const HomeScreen = () => { // ✅ No route prop here
         ))}
       </View>
 
-      {/* Floating Button */}
-      <TouchableOpacity style={styles.floatingButton}>
-        <Text style={styles.floatingButtonText}>
-          {completedQuizzes.size}/{filteredCategories.length} Quizzes Completed
-        </Text>
-      </TouchableOpacity>
-
+      
       {/* Category List */}
       {loading ? (
         <ActivityIndicator size="large" color="#f04d1c" />
@@ -251,7 +245,15 @@ const HomeScreen = () => { // ✅ No route prop here
           numColumns={2}
         />
       )}
-    </View>
+   
+
+    {/* Floating Button */}
+    <TouchableOpacity style={styles.floatingButton}>
+    <Text style={styles.floatingButtonText}>
+      {completedQuizzes.size}/{filteredCategories.length} Quizzes Completed
+    </Text>
+  </TouchableOpacity>
+  </View>
 
   );
 };
