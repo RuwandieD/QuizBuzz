@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Alert,
 } from 'react-native';
+import { useAuth } from './context/AuthContext';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@/types';
@@ -16,22 +17,22 @@ type NavigationProp = StackNavigationProp<RootStackParamList, 'HomeScreen'>;
 
 const LoginScreen = () => {
   const navigation = useNavigation<NavigationProp>();
+  const { login } = useAuth(); // Use Auth Context
 
   // States
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  // Mock Validation
+  // Handle Login
   const handleLogin = () => {
     if (!username || !password) {
       Alert.alert('Error', 'Username and Password are required!');
       return;
     }
 
-    if (username === 'admin' && password === '1234') {
-      // Navigate to HomeScreen with username
-      navigation.navigate('HomeScreen', { username: 'admin' });
-
+    const success = login(username, password);
+    if (success) {
+      navigation.navigate('HomeScreen', { username });
     } else {
       Alert.alert('Error', 'Invalid credentials!');
     }
@@ -63,6 +64,7 @@ const LoginScreen = () => {
   );
 };
 
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,

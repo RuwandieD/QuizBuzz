@@ -10,19 +10,21 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@/types';
+import { useAuth } from './context/AuthContext';
 
 // Define Navigation Type
 type NavigationProp = StackNavigationProp<RootStackParamList, 'LoginScreen'>;
 
 const RegisterScreen = () => {
   const navigation = useNavigation<NavigationProp>();
+  const { register } = useAuth(); // Use Auth Context
 
   // States
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  // Validation
+  // Handle Register
   const handleRegister = () => {
     if (!username || !password || !confirmPassword) {
       Alert.alert('Error', 'All fields are required!');
@@ -34,8 +36,13 @@ const RegisterScreen = () => {
       return;
     }
 
-    Alert.alert('Success', 'Registration Successful!');
-    navigation.navigate('LoginScreen'); // Redirect to Login
+    const success = register(username, password);
+    if (success) {
+      Alert.alert('Success', 'Account created! Proceed to login.');
+      navigation.navigate('LoginScreen'); // Redirect to Login
+    } else {
+      Alert.alert('Error', 'Username already exists.');
+    }
   };
 
   return (
@@ -71,6 +78,7 @@ const RegisterScreen = () => {
   );
 };
 
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,

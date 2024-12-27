@@ -1,3 +1,4 @@
+import { AuthProvider } from './context/AuthContext'; 
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -22,18 +23,17 @@ export default function RootLayout() {
   if (!loaded) return null;
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        {/* Tabs */}
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-
-        {/* Stack Screens */}
-        <Stack.Screen name="LoginScreen" options={{ title: 'Login' }} />
-        <Stack.Screen name="RegisterScreen" options={{ title: 'Register' }} />
-        <Stack.Screen name="QuizDetailScreen" options={{ title: 'Quiz Details' }} />
-        <Stack.Screen name="ResultScreen" options={{ title: 'Results' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <AuthProvider> {/* Wrap everything in AuthProvider */}
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="LoginScreen" options={{ title: 'Login' }} />
+          <Stack.Screen name="RegisterScreen" options={{ title: 'Register' }} />
+          <Stack.Screen name="QuizDetailScreen" options={{ title: 'Quiz Details' }} />
+          <Stack.Screen name="ResultScreen" options={{ title: 'Results' }} />
+        </Stack>
+        <StatusBar style="auto" />
+      </ThemeProvider>
+    </AuthProvider> 
   );
 }
