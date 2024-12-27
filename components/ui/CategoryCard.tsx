@@ -31,12 +31,15 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
   <Text
     style={[
       styles.tag,
-      statusTag === 'Completed' && styles.completedTag, // Apply a different style for 'Completed'
+      statusTag === 'Completed' && styles.completedTag, // Green for Completed
+      statusTag === 'Popular' && styles.popularTag,     // Orange for Popular
+      statusTag === 'New' && styles.newTag,             // Blue for New
     ]}
   >
     {statusTag}
   </Text>
 )}
+
 
       {/* Title */}
       <Text style={styles.title}>{name}</Text>
@@ -82,6 +85,13 @@ const styles = StyleSheet.create({
   },
   completedTag: {
     backgroundColor: '#00d759', // Green background for completed tag
+  },
+  popularTag: {
+    backgroundColor: '#b17bff', // Orange for Popular
+  },
+  
+  newTag: {
+    backgroundColor: '#007BFF', // Blue for New
   },
   title: {
     fontSize: 14,

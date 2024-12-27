@@ -114,7 +114,30 @@ const HomeScreen = () => { // ✅ No route prop here
 
   const renderCategory = ({ item }: { item: Category }) => {
     const isCompleted = completedQuizzes.has(item.id); // Check if quiz is completed
-    
+    const [clickCounts, setClickCounts] = useState<{ [key: number]: number }>({}); // Track clicks for each category
+// Handle click count increment
+const handlePress = () => {
+  setClickCounts((prevCounts) => {
+    const updatedCounts = { ...prevCounts, [item.id]: (prevCounts[item.id] || 0) + 1 };
+    return updatedCounts;
+  });
+
+  navigation.navigate('QuizDetailScreen', {
+    categoryId: item.id,
+    categoryName: item.name,
+  });
+};
+
+// Determine tag based on status
+let statusTag = 'New'; // Default to 'New'
+const clickCount = clickCounts[item.id] || 0;
+
+if (isCompleted) {
+  statusTag = 'Completed';
+} else if (clickCount >= 5) {
+  statusTag = 'Popular';
+}
+
     return (
       <CategoryCard
         id={item.id}
