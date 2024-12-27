@@ -15,6 +15,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { useAuth } from './context/AuthContext';
 import { MaterialIcons } from '@expo/vector-icons'; // Use icons from Expo
 import CategoryCard from '../components/ui/CategoryCard';
+import { Dimensions } from 'react-native';
 
 
 // Define Category type
@@ -39,7 +40,6 @@ const categoryImages: { [key: string]: any } = {
 // Navigation type
 type NavigationProp = StackNavigationProp<RootStackParamList, 'QuizDetailScreen'>;
 
-// Fetch the logged-in user from AuthContext
 
 const HomeScreen = ({ route }: any) => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -47,6 +47,7 @@ const HomeScreen = ({ route }: any) => {
   const [selectedFilter, setSelectedFilter] = useState('All');
   const { user, logout } = useAuth(); // Access user and logout function
   const navigation = useNavigation<NavigationProp>();
+  const [clickCount, setClickCount] = useState(0); // Tracks clicks
 
   // Fetch categories from API
   useEffect(() => {
@@ -64,7 +65,7 @@ const HomeScreen = ({ route }: any) => {
   }, []);
 
   // Filter options
-  const filters = ['All', 'Entertainment', 'General', 'Science'];
+  const filters = ['All', 'General', 'Science', 'Mathematics', 'Music', 'Books', 'Film','Entertainment','Video Games'];
 
   // Apply filter
   const filteredCategories =
@@ -74,15 +75,14 @@ const HomeScreen = ({ route }: any) => {
         item.name.toLowerCase().includes(selectedFilter.toLowerCase())
       );
 
-  // Render each category
   const renderCategory = ({ item }: { item: Category }) => (
     <CategoryCard
       id={item.id}
       name={item.name}
-      description="Challenge yourself with quizzes!"
       imageSource={categoryImages[item.name] || categoryImages['default']}
-      statusTag={item.id % 2 === 0 ? 'Popular' : 'New'} // Example status
+      statusTag={item.id % 2 === 0 ? 'Popular' : 'New'}
       onPress={() =>
+        
         navigation.navigate('QuizDetailScreen', {
           categoryId: item.id,
           categoryName: item.name,
@@ -90,7 +90,8 @@ const HomeScreen = ({ route }: any) => {
       }
     />
   );
-  
+
+
 
   return (
     <View style={styles.container}>
@@ -150,10 +151,15 @@ const HomeScreen = ({ route }: any) => {
         <ActivityIndicator size="large" color="#f04d1c" />
       ) : (
         <FlatList
-          data={filteredCategories}
-          renderItem={renderCategory}
-          keyExtractor={(item) => item.id.toString()}
-        />
+  key={`columns-2`} // Keeps rendering consistent
+  data={filteredCategories}
+  renderItem={renderCategory}
+  keyExtractor={(item) => item.id.toString()}
+  numColumns={2} // Fixed 2 columns for mobile
+  columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 12 }}
+/>
+
+
       )}
     </View>
   );
@@ -163,9 +169,13 @@ const HomeScreen = ({ route }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    paddingHorizontal: 8, // Uniform padding
+    paddingVertical: 8,
     backgroundColor: '#FFFFFF',
+    paddingTop: 40,
   },
+
+
   headerBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -207,6 +217,7 @@ const styles = StyleSheet.create({
   filterContainer: {
     flexDirection: 'row',
     marginBottom: 16,
+    marginTop: 20,
   },
   filterButton: {
     paddingVertical: 8,
@@ -239,6 +250,26 @@ const styles = StyleSheet.create({
   cardText: {
     fontSize: 16,
   },
+  columnWrapper: {
+    justifyContent: 'space-between', // Adds spacing between columns
+  },
+
+  cardContainer: {
+    width: '48%', // Keeps 2 columns with equal width
+    height: 180, // Fixed height for consistency
+    margin: 8, // Adds equal spacing
+    borderRadius: 10,
+    backgroundColor: '#FFFFFF',
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+
+
+
 });
 
 export default HomeScreen;

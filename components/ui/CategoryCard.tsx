@@ -1,20 +1,22 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 
 // Define props for the category card
 type CategoryCardProps = {
   id: number;
   name: string;
-  description: string; // New field for description
   imageSource: any;
   statusTag?: string; // New field for status tags
   onPress: () => void;
 };
 
+// Calculate Dynamic Width Inside Component
+const screenWidth = Dimensions.get('window').width; // Screen width
+const cardWidth = (screenWidth - 32) / 2; // 2 Columns with padding
+
 const CategoryCard: React.FC<CategoryCardProps> = ({
   id,
   name,
-  description,
   imageSource,
   statusTag,
   onPress,
@@ -30,8 +32,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
       {/* Title */}
       <Text style={styles.title}>{name}</Text>
 
-      {/* Description */}
-      <Text style={styles.description}>{description}</Text>
+
     </TouchableOpacity>
   );
 };
@@ -39,23 +40,27 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
 // Styles
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#F9F9F9',
+    width: cardWidth, // Use the passed cardWidth prop
+    height: 180, // Fixed height
+    margin: 8, // Uniform gaps
     borderRadius: 10,
-    padding: 16,
-    marginBottom: 12,
-    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 2,
   },
+
+
   image: {
-    width: 80,
-    height: 80,
-    marginBottom: 12,
-    borderRadius: 40, // Makes the image circular
+    width: '100%', // Fill the card width
+    height: 100, // Fixed height
+    resizeMode: 'cover', // Cover without stretching
   },
+
+
   tag: {
     backgroundColor: '#007BFF',
     color: '#FFFFFF',
@@ -63,12 +68,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     fontSize: 12,
     borderRadius: 20,
-    marginBottom: 8,
+    alignSelf: 'center', // Centers the tag
+    marginTop: 8,
   },
   title: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 4,
+    fontSize: 14,
+    fontWeight: 'bold',
+    textAlign: 'center', // Ensures alignment
+    marginTop: 8,
   },
   description: {
     fontSize: 14,
