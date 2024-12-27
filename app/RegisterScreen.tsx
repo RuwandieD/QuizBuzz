@@ -3,7 +3,7 @@ import {
   View,
   Text,
   TextInput,
-  Button,
+  TouchableOpacity,
   StyleSheet,
   Alert,
 } from 'react-native';
@@ -17,7 +17,7 @@ type NavigationProp = StackNavigationProp<RootStackParamList, 'LoginScreen'>;
 
 const RegisterScreen = () => {
   const navigation = useNavigation<NavigationProp>();
-  const { register } = useAuth(); // Use Auth Context
+  const { register } = useAuth();
 
   // States
   const [username, setUsername] = useState('');
@@ -39,7 +39,7 @@ const RegisterScreen = () => {
     const success = register(username, password);
     if (success) {
       Alert.alert('Success', 'Account created! Proceed to login.');
-      navigation.navigate('LoginScreen'); // Redirect to Login
+      navigation.navigate('LoginScreen');
     } else {
       Alert.alert('Error', 'Username already exists.');
     }
@@ -47,7 +47,8 @@ const RegisterScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Register</Text>
+      <Text style={styles.header}>Create an Account</Text>
+      <Text style={styles.subHeader}>Join us and start your journey today!</Text>
 
       <TextInput
         style={styles.input}
@@ -70,9 +71,17 @@ const RegisterScreen = () => {
         onChangeText={setConfirmPassword}
       />
 
-      <Button title="Register" onPress={handleRegister} />
-      <Text style={styles.linkText} onPress={() => navigation.navigate('LoginScreen')}>
-        Already have an account? Login
+      {/* Register Button */}
+      <TouchableOpacity style={styles.button} onPress={handleRegister}>
+        <Text style={styles.buttonText}>Register</Text>
+      </TouchableOpacity>
+
+      {/* Login Link */}
+      <Text
+        style={styles.linkText}
+        onPress={() => navigation.navigate('LoginScreen')}
+      >
+        Already have an account? <Text style={styles.linkHighlight}>Login</Text>
       </Text>
     </View>
   );
@@ -84,26 +93,49 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F8F9FD',
   },
   header: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  subHeader: {
+    fontSize: 14,
+    color: '#7A7A7A',
     marginBottom: 20,
     textAlign: 'center',
   },
   input: {
-    height: 40,
-    borderColor: '#ccc',
+    height: 50,
+    borderColor: '#E0E0E0',
     borderWidth: 1,
     marginBottom: 12,
-    paddingHorizontal: 10,
-    borderRadius: 5,
+    paddingHorizontal: 15,
+    borderRadius: 10,
+    backgroundColor: '#FFFFFF',
+  },
+  button: {
+    backgroundColor: '#6200EE',
+    paddingVertical: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
   },
   linkText: {
-    color: '#007BFF',
+    color: '#7A7A7A',
     marginTop: 20,
     textAlign: 'center',
+  },
+  linkHighlight: {
+    color: '#6200EE',
+    fontWeight: 'bold',
   },
 });
 

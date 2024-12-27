@@ -3,7 +3,7 @@ import {
   View,
   Text,
   TextInput,
-  Button,
+  TouchableOpacity,
   StyleSheet,
   Alert,
 } from 'react-native';
@@ -17,7 +17,7 @@ type NavigationProp = StackNavigationProp<RootStackParamList, 'HomeScreen'>;
 
 const LoginScreen = () => {
   const navigation = useNavigation<NavigationProp>();
-  const { login } = useAuth(); // Use Auth Context
+  const { login } = useAuth();
 
   // States
   const [username, setUsername] = useState('');
@@ -40,7 +40,8 @@ const LoginScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Login</Text>
+      <Text style={styles.header}>Welcome Back!</Text>
+      <Text style={styles.subHeader}>Login to continue your journey.</Text>
 
       <TextInput
         style={styles.input}
@@ -56,9 +57,17 @@ const LoginScreen = () => {
         onChangeText={setPassword}
       />
 
-      <Button title="Login" onPress={handleLogin} />
-      <Text style={styles.linkText} onPress={() => navigation.navigate('RegisterScreen')}>
-        Don't have an account? Register
+      {/* Login Button */}
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <Text style={styles.buttonText}>Login</Text>
+      </TouchableOpacity>
+
+      {/* Register Link */}
+      <Text
+        style={styles.linkText}
+        onPress={() => navigation.navigate('RegisterScreen')}
+      >
+        Don't have an account? <Text style={styles.linkHighlight}>Register</Text>
       </Text>
     </View>
   );
@@ -70,26 +79,49 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F8F9FD',
   },
   header: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  subHeader: {
+    fontSize: 14,
+    color: '#7A7A7A',
     marginBottom: 20,
     textAlign: 'center',
   },
   input: {
-    height: 40,
-    borderColor: '#ccc',
+    height: 50,
+    borderColor: '#E0E0E0',
     borderWidth: 1,
     marginBottom: 12,
-    paddingHorizontal: 10,
-    borderRadius: 5,
+    paddingHorizontal: 15,
+    borderRadius: 10,
+    backgroundColor: '#FFFFFF',
+  },
+  button: {
+    backgroundColor: '#D900EE',
+    paddingVertical: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
   },
   linkText: {
-    color: '#007BFF',
+    color: '#7A7A7A',
     marginTop: 20,
     textAlign: 'center',
+  },
+  linkHighlight: {
+    color: '#D900EE',
+    fontWeight: 'bold',
   },
 });
 

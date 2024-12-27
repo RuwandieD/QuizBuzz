@@ -59,10 +59,10 @@ const styles = StyleSheet.create({
     height: 100, // Fixed height
     resizeMode: 'cover', // Cover without stretching
   },
-
+   
 
   tag: {
-    backgroundColor: '#007BFF',
+    backgroundColor: '#b17bff',
     color: '#FFFFFF',
     paddingVertical: 4,
     paddingHorizontal: 8,

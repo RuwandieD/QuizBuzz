@@ -114,24 +114,6 @@ const HomeScreen = () => { // ✅ No route prop here
 
   const renderCategory = ({ item }: { item: Category }) => {
     const isCompleted = completedQuizzes.has(item.id); // Check if quiz is completed
-
-    // Define dynamic styles for completed quizzes
-    const categoryStyle = {
-      backgroundColor: isCompleted ? '#A5D6A7' : '#FFFFFF', // Green if completed
-      opacity: isCompleted ? 0.6 : 1, // Dim completed quizzes
-    };
-
-    const statusTagStyle = {
-      backgroundColor: isCompleted ? '#00ee63' : '#0014EE', // Green for completed, Blue for others
-      paddingVertical: 4,
-      paddingHorizontal: 8,
-      borderRadius: 12,
-      color: '#FFFFFF', // White text
-      fontWeight: 'bold',
-      fontSize: 12,
-      textAlign: 'center',
-    };
-
     
     return (
       <CategoryCard
@@ -149,10 +131,6 @@ const HomeScreen = () => { // ✅ No route prop here
       />
     );
   };
-
-
-
-
 
   return (
     <View style={styles.container}>
@@ -219,7 +197,7 @@ const HomeScreen = () => { // ✅ No route prop here
             const isCompleted = completedQuizzes.has(item.id);
 
             const categoryStyle = {
-              borderWidth: isCompleted ? 2 : 0, // Add a 2px border only if completed
+              borderWidth: isCompleted ? 3 : 0, // Add a 2px border only if completed
               borderColor: isCompleted ? '#00ee63' : 'transparent', // Green border for completed
               borderRadius: 10,
               margin: 5,
@@ -274,7 +252,7 @@ const styles = StyleSheet.create({
     width: 150,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#6200EE', // Purple button
+    backgroundColor: '#D900EE', // Purple button
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
@@ -341,7 +319,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0F0F0',
   },
   activeFilter: {
-    backgroundColor: '#333333',
+    backgroundColor: '#6200EE',
+
   },
   filterText: {
     fontSize: 14,
