@@ -26,8 +26,17 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
       {/* Category Image */}
       <Image source={imageSource} style={styles.image} />
 
-      {/* Status Tag */}
-      {statusTag && <Text style={styles.tag}>{statusTag}</Text>}
+{/* Status Tag */}
+{statusTag && (
+  <Text
+    style={[
+      styles.tag,
+      statusTag === 'Completed' && styles.completedTag, // Apply a different style for 'Completed'
+    ]}
+  >
+    {statusTag}
+  </Text>
+)}
 
       {/* Title */}
       <Text style={styles.title}>{name}</Text>
@@ -70,6 +79,9 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignSelf: 'center', // Centers the tag
     marginTop: 8,
+  },
+  completedTag: {
+    backgroundColor: '#00d759', // Green background for completed tag
   },
   title: {
     fontSize: 14,
