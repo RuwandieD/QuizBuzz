@@ -12,6 +12,10 @@ import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '@/types';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { useAuth } from './context/AuthContext';
+import { MaterialIcons } from '@expo/vector-icons'; // Use icons from Expo
+import CategoryCard from '../components/ui/CategoryCard';
+
 
 // Define Category type
 type Category = {
@@ -21,24 +25,29 @@ type Category = {
 
 // Image mapping based on category name
 const categoryImages: { [key: string]: any } = {
-    'General Knowledge': require('../assets/images/generalKnowledge.png'),
-    'Entertainment: Books': require('../assets/images/books.jpeg'),
-    'Entertainment: Film': require('../assets/images/film.jpg'),
-    'Entertainment: Music': require('../assets/images/music.jpg'),
-    'Science & Nature': require('../assets/images/animals.jpg'), // Replacing with animals.jpg
-    'Entertainment: Video Games': require('../assets/images/computer.jpg'), // Replacing with computer.jpg
-    'Mathematics': require('../assets/images/maths.jpg'), // Adding a new category for Mathematics
-    default: require('../assets/images/homeDefault.png'),
-  };
-  
+  'General Knowledge': require('../assets/images/generalKnowledge.png'),
+  'Entertainment: Books': require('../assets/images/books.jpeg'),
+  'Entertainment: Film': require('../assets/images/film.jpg'),
+  'Entertainment: Music': require('../assets/images/music.jpg'),
+  'Science & Nature': require('../assets/images/animals.jpg'), // Replacing with animals.jpg
+  'Entertainment: Video Games': require('../assets/images/computer.jpg'), // Replacing with computer.jpg
+  'Mathematics': require('../assets/images/maths.jpg'), // Adding a new category for Mathematics
+  default: require('../assets/images/homeDefault.png'),
+};
+
 
 // Navigation type
 type NavigationProp = StackNavigationProp<RootStackParamList, 'QuizDetailScreen'>;
+
+// Fetch the logged-in user from AuthContext
 
 const HomeScreen = ({ route }: any) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFilter, setSelectedFilter] = useState('All');
+
+  const { user, logout } = useAuth(); // Access user and logout function
+
 
   const navigation = useNavigation<NavigationProp>();
   const username = route?.params?.username || 'Guest';
@@ -66,22 +75,26 @@ const HomeScreen = ({ route }: any) => {
     selectedFilter === 'All'
       ? categories
       : categories.filter((item: Category) =>
-          item.name.toLowerCase().includes(selectedFilter.toLowerCase())
-        );
+        item.name.toLowerCase().includes(selectedFilter.toLowerCase())
+      );
 
   // Render each category
   const renderCategory = ({ item }: { item: Category }) => (
-    <TouchableOpacity
-      style={styles.card}
+    <CategoryCard
+      id={item.id}
+      name={item.name}
+      description="Challenge yourself with quizzes!"
+      imageSource={categoryImages[item.name] || categoryImages['default']}
+      statusTag={item.id % 2 === 0 ? 'Popular' : 'New'} // Example status
       onPress={() =>
         navigation.navigate('QuizDetailScreen', {
           categoryId: item.id,
           categoryName: item.name,
         })
-      }>
-      <Text style={styles.cardText}>{item.name}</Text>
-    </TouchableOpacity>
+      }
+    />
   );
+  
 
   return (
     <View style={styles.container}>
@@ -89,13 +102,35 @@ const HomeScreen = ({ route }: any) => {
       <View style={styles.headerContainer}>
         <Text style={styles.header}>Learn through quizzes</Text>
         <View style={styles.buttonContainer}>
-          <Button title="Login" onPress={() => navigation.navigate('LoginScreen')} />
-          <Button title="Register" onPress={() => navigation.navigate('RegisterScreen')} />
+          {/* Login Button */}
+          <TouchableOpacity style={styles.loginButton} onPress={() => navigation.navigate('LoginScreen')}>
+            <Text style={styles.buttonText}>LOGIN</Text>
+          </TouchableOpacity>
+
+          {/* Register Button */}
+          <TouchableOpacity style={styles.registerButton} onPress={() => navigation.navigate('RegisterScreen')}>
+            <Text style={styles.buttonText}>REGISTER</Text>
+          </TouchableOpacity>
+
+          {/* Logout Icon Button */}
+          <TouchableOpacity
+            style={styles.logoutButton}
+            onPress={() => {
+              logout(); // Clear user session
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'LoginScreen' }], // Reset to LoginScreen
+              });
+            }}
+          >
+            <MaterialIcons name="logout" size={24} color="black" />
+          </TouchableOpacity>
         </View>
+
       </View>
 
-      {/* Welcome Message */}
-      <Text style={styles.welcome}>Welcome, {username}!</Text>
+      {/* Dynamic Welcome Message */}
+      <Text style={styles.welcome}>Welcome, {user || 'Guest'}!</Text> {/* Replace Guest with user */}
 
       {/* Filter Buttons */}
       <View style={styles.filterContainer}>
@@ -149,10 +184,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
   },
-  buttonContainer: {
-    flexDirection: 'row',
-    gap: 10,
-  },
+
   welcome: {
     fontSize: 16,
     marginBottom: 10,
@@ -188,6 +220,42 @@ const styles = StyleSheet.create({
   cardText: {
     fontSize: 16,
   },
+  buttonContainer: {
+    flexDirection: 'row', // Ensure buttons are in a row
+    alignItems: 'center', // Align vertically
+    gap: 8, // Add spacing between buttons
+  },
+
+  loginButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: '#007BFF', // Blue color
+    borderRadius: 8,
+  },
+
+  registerButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: '#007BFF',
+    borderRadius: 8,
+  },
+
+  logoutButton: {
+    marginLeft: 8, // Add space from buttons
+    padding: 8,
+    borderRadius: 50, // Circular button
+    backgroundColor: '#F0F0F0', // Light gray background
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+
+
 });
 
 export default HomeScreen;
