@@ -92,7 +92,8 @@ const HomeScreen = ({ route }: any) => {
         </View>
       </View>
 
-      <Text style={styles.welcome}>Welcome, {username}!</Text>
+      
+<Text style={styles.welcome}>Welcome, {username}!</Text>
 
       {/* Filter Buttons */}
       <View style={styles.filterContainer}>
