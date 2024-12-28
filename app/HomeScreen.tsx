@@ -19,8 +19,31 @@ import { Dimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+// Define the state type
+interface QuizState {
+  completedQuizzes: Set<number>;
+}
 
+// Initial state
+const initialState: QuizState = {
+  completedQuizzes: new Set(),
+};
+
+// Create slice
+const quizSlice = createSlice({
+  name: 'quiz',
+  initialState,
+  reducers: {
+    addCompletedQuiz: (state, action: PayloadAction<number>) => {
+      state.completedQuizzes.add(action.payload);
+    },
+    resetCompletedQuizzes: (state) => {
+      state.completedQuizzes = new Set();
+    },
+  },
+});
 // Define Category type
 type Category = {
   id: number;
