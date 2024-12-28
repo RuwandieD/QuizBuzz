@@ -1,22 +1,21 @@
-import { Link, Stack } from 'expo-router';
-import { StyleSheet } from 'react-native';
+import React from 'react';
+import { View, Text, Button, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '@/types';
 
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+type NavigationProp = StackNavigationProp<RootStackParamList, 'HomeScreen'>;
 
-export default function NotFoundScreen() {
+const NotFoundScreen = () => {
+  const navigation = useNavigation<NavigationProp>();
+
   return (
-    <>
-      <Stack.Screen options={{ title: 'Oops!' }} />
-      <ThemedView style={styles.container}>
-        <ThemedText type="title">This screen doesn't exist.</ThemedText>
-        <Link href="/" style={styles.link}>
-          <ThemedText type="link">Go to home screen!</ThemedText>
-        </Link>
-      </ThemedView>
-    </>
+    <View style={styles.container}>
+      <Text style={styles.text}>Oops! This screen doesn't exist.</Text>
+      <Button title="Go to Home" onPress={() => navigation.navigate('HomeScreen', { username: 'Guest' })} />
+    </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -24,9 +23,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
+    backgroundColor: '#1E1E2F',
   },
-  link: {
-    marginTop: 15,
-    paddingVertical: 15,
+  text: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginBottom: 20,
   },
 });
+
+export default NotFoundScreen;
