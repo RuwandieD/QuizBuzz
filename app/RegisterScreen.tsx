@@ -1,15 +1,10 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-} from 'react-native';
+import { View, Text, StyleSheet, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@/types';
+import CustomInput from '../components/ui/CustomInput';
+import CustomButton from '../components/ui/CustomButton';
 import { useAuth } from './context/AuthContext';
 
 // Define Navigation Type
@@ -19,13 +14,12 @@ const RegisterScreen = () => {
   const navigation = useNavigation<NavigationProp>();
   const { register } = useAuth();
 
-  // States
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  // Handle Register
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (!username || !password || !confirmPassword) {
       Alert.alert('Error', 'All fields are required!');
       return;
@@ -36,7 +30,10 @@ const RegisterScreen = () => {
       return;
     }
 
-    const success = register(username, password);
+    setLoading(true);
+    const success = await register(username, password);
+    setLoading(false);
+
     if (success) {
       Alert.alert('Success', 'Account created! Proceed to login.');
       navigation.navigate('LoginScreen');
@@ -50,37 +47,19 @@ const RegisterScreen = () => {
       <Text style={styles.header}>Create an Account</Text>
       <Text style={styles.subHeader}>Join us and start your journey today!</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Username"
-        value={username}
-        onChangeText={setUsername}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Confirm Password"
-        secureTextEntry
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
+      <CustomInput placeholder="Username" value={username} onChangeText={setUsername} />
+      <CustomInput placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry isPassword />
+      <CustomInput placeholder="Confirm Password" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry isPassword />
+
+      {/* Purple Button */}
+      <CustomButton
+        title="Register"
+        onPress={handleRegister}
+        isLoading={loading}
+        color="#6200EE" // Purple
       />
 
-      {/* Register Button */}
-      <TouchableOpacity style={styles.button} onPress={handleRegister}>
-        <Text style={styles.buttonText}>Register</Text>
-      </TouchableOpacity>
-
-      {/* Login Link */}
-      <Text
-        style={styles.linkText}
-        onPress={() => navigation.navigate('LoginScreen')}
-      >
+      <Text style={styles.linkText} onPress={() => navigation.navigate('LoginScreen')}>
         Already have an account? <Text style={styles.linkHighlight}>Login</Text>
       </Text>
     </View>
@@ -107,34 +86,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
   },
-  input: {
-    height: 50,
-    borderColor: '#E0E0E0',
-    borderWidth: 1,
-    marginBottom: 12,
-    paddingHorizontal: 15,
-    borderRadius: 10,
-    backgroundColor: '#FFFFFF',
-  },
-  button: {
-    backgroundColor: '#6200EE',
-    paddingVertical: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
   linkText: {
     color: '#7A7A7A',
     marginTop: 20,
     textAlign: 'center',
   },
   linkHighlight: {
-    color: '#6200EE',
+    color: '#D900EE',
     fontWeight: 'bold',
   },
 });

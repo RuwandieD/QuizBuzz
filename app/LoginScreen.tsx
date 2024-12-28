@@ -1,16 +1,12 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-} from 'react-native';
+import { View, Text, StyleSheet, Alert } from 'react-native';
 import { useAuth } from './context/AuthContext';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@/types';
+import CustomInput from '../components/ui/CustomInput';
+import CustomButton from '../components/ui/CustomButton';
+import { MaterialIcons } from '@expo/vector-icons';
 
 // Define Navigation Type
 type NavigationProp = StackNavigationProp<RootStackParamList, 'HomeScreen'>;
@@ -19,18 +15,20 @@ const LoginScreen = () => {
   const navigation = useNavigation<NavigationProp>();
   const { login } = useAuth();
 
-  // States
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  // Handle Login
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!username || !password) {
       Alert.alert('Error', 'Username and Password are required!');
       return;
     }
 
-    const success = login(username, password);
+    setLoading(true);
+    const success = await login(username, password);
+    setLoading(false);
+
     if (success) {
       navigation.navigate('HomeScreen', { username });
     } else {
@@ -43,30 +41,24 @@ const LoginScreen = () => {
       <Text style={styles.header}>Welcome Back!</Text>
       <Text style={styles.subHeader}>Login to continue your journey.</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Username"
-        value={username}
-        onChangeText={setUsername}
-      />
-      <TextInput
-        style={styles.input}
+      <CustomInput placeholder="Username" value={username} onChangeText={setUsername} />
+      <CustomInput
         placeholder="Password"
-        secureTextEntry
         value={password}
         onChangeText={setPassword}
+        secureTextEntry
+        isPassword // Adds visibility toggle
       />
 
-      {/* Login Button */}
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Login</Text>
-      </TouchableOpacity>
+      {/* Pink Button */}
+      <CustomButton
+        title="Login"
+        onPress={handleLogin}
+        isLoading={loading}
+        color="#D900EE" // Explicitly set pink color
+      />
 
-      {/* Register Link */}
-      <Text
-        style={styles.linkText}
-        onPress={() => navigation.navigate('RegisterScreen')}
-      >
+      <Text style={styles.linkText} onPress={() => navigation.navigate('RegisterScreen')}>
         Don't have an account? <Text style={styles.linkHighlight}>Register</Text>
       </Text>
     </View>
@@ -93,34 +85,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
   },
-  input: {
-    height: 50,
-    borderColor: '#E0E0E0',
-    borderWidth: 1,
-    marginBottom: 12,
-    paddingHorizontal: 15,
-    borderRadius: 10,
-    backgroundColor: '#FFFFFF',
-  },
-  button: {
-    backgroundColor: '#D900EE',
-    paddingVertical: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
   linkText: {
     color: '#7A7A7A',
     marginTop: 20,
     textAlign: 'center',
   },
   linkHighlight: {
-    color: '#D900EE',
+    color: '#D900EE', // Pink for links
     fontWeight: 'bold',
   },
 });
